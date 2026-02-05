@@ -1,0 +1,45 @@
+# services:
+#   localstack:
+#     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+#     image: localstack/localstack
+#     ports:
+#       - "127.0.0.1:4566:4566"            # LocalStack Gateway
+#       - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+#     environment:
+#       # - LAMBDA_EXECUTOR=docker
+#       # - LAMBDA_DOCKER_NETWORK=localstack_default
+#       # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+#       - DEBUG=${DEBUG:-0}
+#     volumes:
+#       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+#       - "/var/run/docker.sock:/var/run/docker.sock"
+# networks:
+#   default:
+#     name: localstack_default
+services:
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      # - DEBUG=${DEBUG:-0}
+      # - SERVICES=s3,sqs,lambda,events,dynamodb
+      - DEBUG=1
+      - EVENT_BRIDGE_ENABLED=1
+      - LAMBDA_EXECUTOR=docker
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
